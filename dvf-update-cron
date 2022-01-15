@@ -1,0 +1,6 @@
+# See https://stackoverflow.com/a/48651061/2603925 to know why we need this.
+SHELL=/bin/bash
+BASH_ENV=/container.env
+0 2 1 * * /root/dvf/datasets/update.sh >> /var/log/cron.log 2>&1
+# An empty line is required at the end of this file for a valid cron file.
+
