@@ -11,7 +11,7 @@ git reset --hard origin/master
 
 # Open the DVF page, look for anything that look like a dataset in the "resources" section and download it.
 echo "Downloading files..."
-xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-foncieres/ -e '//*[@id="resources"]/parent::*[1]//a[contains(@href, "https://static.data.gouv.fr/resources/")]' | \
+xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-foncieres/ -e '//*[@id="resources-panel"]//a[contains(@href, "https://static.data.gouv.fr/resources/")]' | \
   sed '/^$/d' | \
   xargs -i{} curl -sOL {}
 
@@ -26,7 +26,7 @@ then
   echo "Something changed"
   git add .
   git commit -m "Update of `date`"
-  git push
+  git push --set-upstream origin master
 fi
 
 echo "done."
