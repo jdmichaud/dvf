@@ -5,15 +5,14 @@ cd `dirname "$0"`
 if [[ `which xidel` == "" ]]; then echo "error: xidel must be installed"; exit 1; fi
 if [[ `which curl` == "" ]]; then echo "error: curl be installed"; exit 1; fi
 if [[ `which gzip` == "" ]]; then echo "error: gzip must be installed"; exit 1; fi
-  
-git remote update
-git reset --hard origin/master
 
 # Open the DVF page, look for anything that look like a dataset in the "resources" section and download it.
 echo "Downloading files..."
-xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-foncieres/ -e '//*[@id="resources-panel"]//a[contains(@href, "https://static.data.gouv.fr/resources/")]' | \
+xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-foncieres/ -e '//a[contains(@href, "https://static.data.gouv.fr/resources/")]' | \
+  uniq | \
   sed '/^$/d' | \
-  xargs -i{} curl -sOL {}
+  grep '/valeur' | \
+  xargs -i{} curl --silent --show-error -w "Download of %{url} finished\n" -OL {}
 
 # Compress everything. -n to make it deterministic.
 echo "Compressing files..."
@@ -26,8 +25,7 @@ then
   echo "Something changed"
   git add .
   git commit -m "Update of `date`"
-  git push --set-upstream origin master
+  git push
 fi
 
 echo "done."
-
