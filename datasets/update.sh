@@ -14,18 +14,22 @@ xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-fonciere
   grep '/valeur' | \
   xargs -i{} curl --silent --show-error -w "Download of %{url} finished\n" -OL {}
 
+# Decompress any zip files
+ls *.zip | xargs -L 1 unzip
+rm -fr *.zip
+
 # Compress everything. -n to make it deterministic.
 echo "Compressing files..."
 gzip -n --force --best *.txt *.pdf
 
-# If anything changed, commit and push it to the git repo.
-git diff --exit-code
-if [[ $? -ne 0 ]];
-then
-  echo "Something changed"
-  git add .
-  git commit -m "Update of `date`"
-  git push
-fi
+# # If anything changed, commit and push it to the git repo.
+# git diff --exit-code
+# if [[ $? -ne 0 ]];
+# then
+#   echo "Something changed"
+#   git add .
+#   git commit -m "Update of `date`"
+#   git push
+# fi
 
 echo "done."
