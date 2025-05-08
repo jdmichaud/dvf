@@ -20,16 +20,19 @@ rm -fr *.zip
 
 # Compress everything. -n to make it deterministic.
 echo "Compressing files..."
-gzip -n --force --best *.txt *.pdf
+gzip --list -n --force --best *.txt *.pdf
 
-# # If anything changed, commit and push it to the git repo.
-# git diff --exit-code
-# if [[ $? -ne 0 ]];
-# then
-#   echo "Something changed"
-#   git add .
-#   git commit -m "Update of `date`"
-#   git push
-# fi
+# Remove parquet files than may have been downloaded
+rm *,parquet
+
+# If anything changed, commit and push it to the git repo.
+git diff --exit-code
+if [[ $? -ne 0 ]];
+then
+  echo "Something changed"
+  git add .
+  git commit -m "Update of `date`"
+  git push
+fi
 
 echo "done."
