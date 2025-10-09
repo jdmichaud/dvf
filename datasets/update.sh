@@ -23,7 +23,7 @@ echo "Compressing files..."
 gzip --list -n --force --best *.txt *.pdf
 
 # Remove parquet files than may have been downloaded
-rm *,parquet
+rm *.parquet
 
 # If anything changed, commit and push it to the git repo.
 git diff --exit-code
