@@ -1,6 +1,6 @@
 # DVF
 
-Ici sont stockes les outils et datasets relatifs au Demandes de Valeurs Foncieres.
+Ici sont stockes les outils et datasets relatifs aux Demandes de Valeurs Foncieres.
 
 # Contenu
 
