@@ -2,28 +2,33 @@
 
 cd `dirname "$0"`
 
-if [[ `which xidel` == "" ]]; then echo "error: xidel must be installed"; exit 1; fi
+if [[ `which jq` == "" ]]; then echo "error: jq must be installed"; exit 1; fi
 if [[ `which curl` == "" ]]; then echo "error: curl be installed"; exit 1; fi
 if [[ `which gzip` == "" ]]; then echo "error: gzip must be installed"; exit 1; fi
 
-# Open the DVF page, look for anything that look like a dataset in the "resources" section and download it.
+# Query the data.gouv.fr API for the dataset's resources and download the yearly zipped text files.
 echo "Downloading files..."
-xidel --silent https://www.data.gouv.fr/en/datasets/demandes-de-valeurs-foncieres/ -e '//a[contains(@href, "https://static.data.gouv.fr/resources/")]' | \
-  uniq | \
-  sed '/^$/d' | \
-  grep '/valeur' | \
+curl --silent --show-error -L https://www.data.gouv.fr/api/1/datasets/demandes-de-valeurs-foncieres/ | \
+  jq -r '.resources[] | select(.format == "txt.zip") | .url' | \
   xargs -i{} curl --silent --show-error -w "Download of %{url} finished\n" -OL {}
 
 # Decompress any zip files
+echo "Decompressing downloaded zip files..."
 ls *.zip | xargs -L 1 unzip
-rm -fr *.zip
+rm -f *.zip
+
+# Normalize filenames to lowercase (archives now ship as ValeursFoncieres-YYYY.txt).
+for f in *.txt; do
+  lower=`echo "$f" | tr '[:upper:]' '[:lower:]'`
+  [[ "$f" != "$lower" ]] && mv -- "$f" "$lower"
+done
 
 # Compress everything. -n to make it deterministic.
 echo "Compressing files..."
-gzip --list -n --force --best *.txt *.pdf
+gzip -n --force --best *.txt
 
 # Remove parquet files than may have been downloaded
-rm *.parquet
+rm -f *.parquet
 
 # If anything changed, commit and push it to the git repo.
 git diff --exit-code
